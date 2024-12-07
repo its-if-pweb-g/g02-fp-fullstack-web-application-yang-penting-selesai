@@ -19,3 +19,59 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.logos {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  padding: 60px 0;
+  background: transparent;
+  white-space: nowrap;
+  position: relative;
+}
+
+.logos:before,
+.logos:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 100px;
+  height: 100%;
+  background: linear-gradient(to right, white, transparent);
+  z-index: 2;
+}
+
+.logos:before {
+  left: 0;
+}
+
+.logos:after {
+  right: 0;
+  transform: rotate(180deg);
+}
+
+.logos-slide {
+  display: flex;
+  flex-shrink: 0;
+  animation: scroll 35s linear infinite;
+}
+
+.logos:hover .logos-slide {
+  animation-play-state: slowed;
+}
+
+.logos img {
+  height: 30px;
+  width: min-content;
+  margin: 0 100px;
+  object-fit: contain;
+}
