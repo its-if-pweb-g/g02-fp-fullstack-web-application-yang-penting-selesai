@@ -1,4 +1,121 @@
+"use client";
+
+import React, { useState, useCallback } from "react";
+
+interface FormData { 
+  username: string; 
+  email: string; 
+  password: string;
+  confirmPassword: string;
+}
+
 export default function RegisterView() {
+
+  const [formData, setFormData] = useState<FormData>({
+    
+    username : "",
+    email : "",
+    password : "",
+    confirmPassword : ""
+
+  });
+
+  const [alert, setAlert] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [isEmailValid, setIsEmailValid] = useState<boolean | null>(null);
+  const [isPasswordMatch, setIsPasswordMatch] = useState<boolean | null>(null);
+  const [isUsernameValid, setIsUsernameValid] = useState<boolean | null>(null);
+  const [isPasswordValid, setIsPasswordValid] = useState<boolean | null>(null);
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => { 
+    const { name, value } = e.target; 
+    setFormData((prev) => ({ ...prev, [name]: value })); 
+
+    if (name === "email") {
+      setIsEmailValid(
+        /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value)
+      );
+    }
+
+    if (name === "username") {
+      setIsUsernameValid(
+        /^[A-Za-z0-9_]{3,20}$/.test(value) && !/^_.*|.*_$/.test(value)
+      );
+    }
+
+    if (name === "password") {
+      setIsPasswordValid(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/.test(value)
+      );
+    }
+
+    if (name === "confirmPassword") {
+      setIsPasswordMatch(value === formData.password);
+    }
+
+  }, [formData]);
+
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+
+    e.preventDefault(); 
+    setLoading(true);
+
+    if (!isUsernameValid) {
+      setAlert({ message: "Username can only contain letters, numbers, and underscores. It must be between 3 and 20 characters long and cannot start or end with an underscore.", type: "error" });
+      setLoading(false);
+      return;
+    }
+
+    if (!isEmailValid) {
+      setAlert({ message: "Please enter a valid email address.", type: "error" });
+      setLoading(false);
+      return;
+    }
+
+    if (!isPasswordValid) {
+      setAlert({ message: "Password must be at least 8 characters long and contain an uppercase letter, a number, and a special character.", type: "error" });
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setAlert({ message: "Password and confirm password do not match.", type: "error" });
+      setLoading(false);
+      return;
+    }
+    
+    try { 
+
+      const res = await fetch("/api/register", { 
+        
+        method: "POST", 
+        headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify(formData), 
+      
+      }); 
+      
+      const data = await res.json(); 
+      
+      if (res.ok) {
+        setAlert({ message: "User registered successfully", type: "success" });
+        setFormData({ username: "", email: "", password: "", confirmPassword: ""});
+      
+      } else { 
+        setAlert({ message: data.message || "Failed to register", type: "error" });
+        
+      } 
+    
+    } catch (error) { 
+      console.error("Error during registration:", error); 
+      setAlert({ message: "An error occurred", type: "error" }); 
+    
+    } finally { 
+      setLoading(false); 
+    
+    }
+
+  }, [formData]);
+
   return (
     <div className="mx-auto max-w-lg ">
       <section className="rounded-lg shadow-lg bg-white dark:bg-gray-900">
@@ -21,7 +138,13 @@ export default function RegisterView() {
                 Daftar sekarang agar dapat melakukan pembelian di TokoKu.
               </p>
 
-              <form action="#" className="mt-8 grid grid-cols-6 gap-6">
+              {alert && (
+                <div className={`mt-4 p-4 rounded ${alert.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+                  {alert.message}
+                </div>
+              )}
+
+              <form action="#" className="mt-8 grid grid-cols-6 gap-6" onSubmit={handleSubmit}>
                 <div className="col-span-6 ">
                   <label
                     htmlFor="Username"
@@ -32,10 +155,19 @@ export default function RegisterView() {
                   <input
                     type="text"
                     id="Username"
-                    name="user_name"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
                     placeholder="your name"
                     className="mt-1 w-full rounded-md border-gray-200  bg-white p-2 pe-12 text-sm text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                   />
+
+                  {isUsernameValid === false && (
+                    <p className="mt-1 text-sm text-red-600">
+                      Username can only contain letters, numbers, and underscores. It must be between 3 and 20 characters long and cannot start or end with an underscore.
+                    </p>
+                  )}
+
                 </div>
 
                 <div className="col-span-6">
@@ -49,25 +181,18 @@ export default function RegisterView() {
                     type="email"
                     id="Email"
                     name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
                     placeholder="your email"
                     className="mt-1 w-full rounded-md border-gray-200  bg-white p-2 pe-12 text-sm text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                   />
-                </div>
+                  
+                  {isEmailValid === false && (
+                    <p className="mt-1 text-sm text-red-600">
+                      Please enter a valid email address.
+                    </p>
+                  )}
 
-                <div className="col-span-6">
-                  <label
-                    htmlFor="phone_number"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                    Phone Number
-                  </label>
-
-                  <input
-                    type="tel"
-                    id="phone_number"
-                    name="phone_number"
-                    placeholder="your phone number"
-                    className="mt-1 w-full rounded-md border-gray-200  bg-white p-2 pe-12 text-sm text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
-                  />
                 </div>
 
                 <div className="col-span-6 ">
@@ -81,29 +206,47 @@ export default function RegisterView() {
                     type="password"
                     id="Password"
                     name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
                     placeholder="create a password"
                     className="mt-1 w-full rounded-md border-gray-200  bg-white p-2 pe-12 text-sm text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                   />
+
+                  {isPasswordValid === false && (
+                    <p className="mt-1 text-sm text-red-600">
+                      Password must be at least 8 characters long and contain an uppercase letter, a number, and a special character.
+                    </p>
+                  )}
+
                 </div>
 
-                <div className="col-span-6 ">
+                <div className="col-span-6">
                   <label
-                    htmlFor="PasswordConfirmation"
+                    htmlFor="ConfirmPassword"
                     className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                    Konfirmasi Password
+                    Confirm Password
                   </label>
 
                   <input
                     type="password"
-                    id="PasswordConfirmation"
-                    name="password_confirmation"
-                    placeholder="confirm password"
+                    id="ConfirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    placeholder="confirm your password"
                     className="mt-1 w-full rounded-md border-gray-200  bg-white p-2 pe-12 text-sm text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                   />
+
+                  {isPasswordMatch === false && (
+                    <p className="mt-1 text-sm text-red-600">
+                      Passwords do not match.
+                    </p>
+                  )}
+
                 </div>
 
                 <div className="col-span-6 mt-2 flex flex-col sm:items-center">
-                  <button className="mb-4 inline-block w-full rounded-md border border-[#a9ca4e] bg-[#a9ca4e] px-12 py-3 text-sm font-medium text-white transition hover:bg-transparent hover:text-[#859F3D] focus:outline-none focus:ring active:text-blue-500 dark:hover:bg-blue-700 dark:hover:text-white">
+                  <button type="submit" disabled={loading} className="mb-4 inline-block w-full rounded-md border border-[#a9ca4e] bg-[#a9ca4e] px-12 py-3 text-sm font-medium text-white transition hover:bg-transparent hover:text-[#859F3D] focus:outline-none focus:ring active:text-blue-500 dark:hover:bg-blue-700 dark:hover:text-white">
                     Daftar
                   </button>
 
