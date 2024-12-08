@@ -1,6 +1,6 @@
-import LoginView from "@/app/components/LoginVeiw";
+import LoginView from "@/app/components/LoginView";
 
-export default function RegisterPage() {
+export default function LoginPage() {
   return (
     <>
       <LoginView />

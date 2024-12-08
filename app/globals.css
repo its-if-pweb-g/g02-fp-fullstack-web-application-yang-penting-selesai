@@ -65,13 +65,29 @@ body {
   animation: scroll 35s linear infinite;
 }
 
-.logos:hover .logos-slide {
-  animation-play-state: slowed;
-}
-
 .logos img {
   height: 30px;
   width: min-content;
   margin: 0 100px;
   object-fit: contain;
+}
+
+input[type="radio"] {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+input[type="radio"]:checked {
+  border-color: #859f3d;
+  background-color: #859f3d;
+}
+
+input[type="radio"]:focus {
+  box-shadow: 0 0 0 3px rgba(133, 159, 61, 0.5);
 }

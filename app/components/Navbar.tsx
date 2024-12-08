@@ -2,14 +2,23 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { ShoppingCart, Menu, X, User, Search, ShoppingBag } from "lucide-react";
+import { products } from "../data/Products";
+import {
+  ShoppingCart,
+  Menu,
+  X,
+  User,
+  Search,
+  ShoppingBag,
+  SearchCheck,
+} from "lucide-react";
 
 const NAV_LINKS = [
-  { href: "/categories/all", label: "All" },
-  { href: "/categories/electronics", label: "Electronics" },
-  { href: "/categories/fashion", label: "Fashion" },
-  { href: "/categories/sports", label: "Sports" },
-  { href: "/categories/beauty-and-care", label: "Beauty & Care" },
+  { href: "/category", label: "All" },
+  { href: "/category", label: "Electronics" },
+  { href: "/category", label: "Fashion" },
+  { href: "/category", label: "Sports" },
+  { href: "/category", label: "Beauty & Care" },
 ];
 
 export default function Navbar() {
@@ -58,7 +67,7 @@ export default function Navbar() {
             <div className="flex space-x-4">
               {NAV_LINKS.map((link) => (
                 <Link
-                  key={link.href}
+                  key={link.label}
                   href={link.href}
                   className="hover:text-[#bade57] transition-colors">
                   {link.label}

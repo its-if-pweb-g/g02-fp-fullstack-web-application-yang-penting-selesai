@@ -4,9 +4,9 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 
 const banner = [
-  { image: "/img/beauty.png", href: "/categories/beauty-and-care" },
-  { image: "/img/fashion.png", href: "/categories/fashion" },
-  { image: "/img/sport.png", href: "/categories/sports" },
+  { image: "/img/beauty.png", href: "/category/beauty-and-care" },
+  { image: "/img/fashion.png", href: "/category/fashion" },
+  { image: "/img/sport.png", href: "/category/sports" },
 ];
 
 export default function Banners() {

@@ -103,7 +103,7 @@ export default function RegisterView() {
                 </div>
 
                 <div className="col-span-6 mt-2 flex flex-col sm:items-center">
-                  <button className="mb-4 inline-block w-full rounded-md border border-[#bade57] bg-[#bade57] px-12 py-3 text-sm font-medium text-white transition hover:bg-transparent hover:text-[#bade57] focus:outline-none focus:ring active:text-blue-500 dark:hover:bg-blue-700 dark:hover:text-white">
+                  <button className="mb-4 inline-block w-full rounded-md border border-[#a9ca4e] bg-[#a9ca4e] px-12 py-3 text-sm font-medium text-white transition hover:bg-transparent hover:text-[#859F3D] focus:outline-none focus:ring active:text-blue-500 dark:hover:bg-blue-700 dark:hover:text-white">
                     Daftar
                   </button>
 

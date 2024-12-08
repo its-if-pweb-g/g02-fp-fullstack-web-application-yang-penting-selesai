@@ -2,46 +2,7 @@ import Banners from "./components/Banners";
 import CategoriesCard from "./components/CategoriesCard";
 import ProductCard from "./components/ProductCard";
 import SliderLogo from "./components/SliderLogo";
-
-const products = [
-  {
-    id: 1,
-    name: "Product 1",
-    price: 99.99,
-    image: "/product1.jpg",
-    discountPercentage: 20,
-  },
-  {
-    id: 2,
-    name: "Product 2",
-    price: 79.99,
-    image: "/product2.jpg",
-    discountPercentage: 30,
-  },
-  {
-    id: 3,
-    name: "Product 3",
-    price: 49.99,
-    image: "/product3.jpg",
-  },
-  { id: 4, name: "Product 1", price: 99.99, image: "/product4.jpg" },
-  {
-    id: 5,
-    name: "Product 2",
-    price: 79.99,
-    image: "/product5.jpg",
-    discountPercentage: 75,
-  },
-  { id: 6, name: "Product 3", price: 49.99, image: "/product6.jpg" },
-  {
-    id: 7,
-    name: "Product 2",
-    price: 79.99,
-    image: "/product5.jpg",
-    discountPercentage: 50,
-  },
-  { id: 8, name: "Product 3", price: 49.99, image: "/product6.jpg" },
-];
+import { products } from "./data/Products";
 
 export default function Home() {
   return (
