@@ -29,7 +29,9 @@ export default function CategoriesCard() {
       <h2 className="text-2xl font-bold text-center mb-10">Categories</h2>
       <dl className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 sm:grid-cols-2 lg:grid-cols-4">
         {CATEGORIES_CARD.map((category) => (
-          <div className="flex flex-col rounded-lg bg-zinc-50 border-[1px] px-4 py-8 text-center cursor-pointer transition-color ease-in-out duration-300 hover:shadow-xl hover:shadow-zinc-50  hover:bg-[#def59f] ">
+          <div
+            key={category.name}
+            className="flex flex-col rounded-lg bg-zinc-50 border-[1px] px-4 py-8 text-center cursor-pointer transition-color ease-in-out duration-300 hover:shadow-xl hover:shadow-zinc-50  hover:bg-[#def59f] ">
             <Link href={category.href}>
               <img
                 src={category.image}

@@ -2,7 +2,7 @@ export default function LoginView() {
   return (
     <div className="mx-auto max-w-lg ">
       <section className="rounded-lg shadow-lg bg-white dark:bg-gray-900">
-        <div className="flex flex-col  ">
+        <div className="flex flex-col lg:min-h-screen">
           <div className="relative block h-16">
             <img
               alt=""
@@ -13,11 +13,11 @@ export default function LoginView() {
 
           <main className="items-center justify-center px-8 py-8 sm:px-12 lg:col-span-7 lg:px-16 lg:py-12 xl:col-span-6">
             <div className="max-w-xl lg:max-w-3xl">
-              <h1 className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl dark:text-white">
+              <h1 className="grow w-full mt-2 text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl dark:text-white">
                 Masuk ke TokoKu!
               </h1>
 
-              <form action="#" className="mt-8 grid grid-cols-6 gap-6">
+              <form action="#" className=" mt-8 grid grid-cols-6 gap-6">
                 <div className="col-span-6">
                   <label
                     htmlFor="Email"

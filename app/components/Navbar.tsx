@@ -25,6 +25,8 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isAuthIconClick, setIsAuthIconClick] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,6 +43,10 @@ export default function Navbar() {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleAuth = () => {
+    setIsAuthIconClick((prev) => !prev);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -103,11 +109,11 @@ export default function Navbar() {
               </span>
             </Link>
 
-            <Link
-              href="/auth/login"
-              className="hidden md:block hover:text-[#bade57]">
+            <button
+              className="hidden md:block hover:text-[#bade57]"
+              onClick={handleAuth}>
               <User size={24} />
-            </Link>
+            </button>
 
             <button onClick={toggleMenu} className="md:hidden ">
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -115,6 +121,18 @@ export default function Navbar() {
           </div>
         </div>
       </nav>
+
+      {isAuthIconClick && (
+        <div className="hidden w-32 h-min md:flex flex-col text-sm text-black bg-white mt-2 p-4 space-y-4 shadow-lg border rounded-md absolute z-10 right-5">
+          <h3 className="font-semibold">Account</h3>
+          <Link
+            href={isAuthenticated ? "/" : "/auth/login"}
+            className="hover:text-[#859F3D] text-left items-center"
+            onClick={handleAuth}>
+            {isAuthenticated ? "Logout" : "Login"}
+          </Link>
+        </div>
+      )}
 
       {isMenuOpen && (
         <div className="md:hidden ">
@@ -140,7 +158,7 @@ export default function Navbar() {
 
             {NAV_LINKS.map((link) => (
               <Link
-                key={link.href}
+                key={link.label}
                 href={link.href}
                 className="block py-2 px-6  rounded"
                 onClick={toggleMenu}>
@@ -149,10 +167,10 @@ export default function Navbar() {
             ))}
 
             <Link
-              href="/login"
+              href={isAuthenticated ? "/" : "/auth/login"}
               className="block py-2 px-6  rounded"
               onClick={toggleMenu}>
-              Login
+              {isAuthenticated ? "Logout" : "Login"}
             </Link>
           </div>
         </div>
