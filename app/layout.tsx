@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { Metadata } from "next";
 import Announcement from "./components/Announcement";
+import { AuthProvider } from "./context/AuthContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -44,10 +45,12 @@ export default function RootLayout({
     <html lang="id" className="scroll-smooth">
       <body className="bg-white min-h-screen flex flex-col antialiased">
         <div className="flex flex-col flex-grow ">
-          <Announcement />
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
+          <AuthProvider>
+            <Announcement />
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+          </AuthProvider>
         </div>
       </body>
     </html>

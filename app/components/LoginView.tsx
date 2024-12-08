@@ -1,4 +1,101 @@
+"use client";
+
+import React, { useState, useCallback } from "react";
+import { useRouter } from 'next/navigation';
+import { useAuth } from "../context/AuthContext";
+
+interface FormData {
+  email: string;
+  password: string;
+}
+
 export default function LoginView() {
+
+  const router = useRouter();
+
+  const { login } = useAuth();
+
+  const [formData, setFormData] = useState<FormData>({
+    email: "",
+    password: "",
+  });
+
+  const [alert, setAlert] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [isEmailValid, setIsEmailValid] = useState<boolean | null>(null);
+  const [isPasswordValid, setIsPasswordValid] = useState<boolean | null>(null);
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "email") {
+      setIsEmailValid(
+        /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value)
+      );
+    }
+
+    if (name === "password") {
+      setIsPasswordValid(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/.test(value)
+      );
+    }
+
+  }, []);
+
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+
+    e.preventDefault();
+    setLoading(true);
+
+    if (!formData.email || !formData.password) {
+      setAlert({ message: "All fields are required.", type: "error" });
+      setLoading(false);
+      return;
+    }
+
+    if (!isEmailValid) {
+      setAlert({ message: "Please enter a valid email address.", type: "error" });
+      setLoading(false);
+      return;
+    }
+
+    if (!isPasswordValid) {
+      setAlert({ message: "Password must be at least 8 characters long and contain an uppercase letter, a number, and a special character.", type: "error" });
+      setLoading(false);
+      return;
+    }
+
+    try {
+
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if( res.ok ) {
+        login(data.token);
+        router.push("/");
+
+      } else {
+        setAlert({ message: data.message || "Failed to login", type: "error" });
+
+      }
+
+    } catch (error) {
+        console.error("Error during login:", error);
+        setAlert({ message: "An error occurred", type: "error" });
+
+    } finally {
+        setLoading(false);
+
+    }
+
+  }, [formData, isEmailValid, isPasswordValid]);
+
   return (
     <div className="mx-auto max-w-lg ">
       <section className="rounded-lg shadow-lg bg-white dark:bg-gray-900">
@@ -17,7 +114,13 @@ export default function LoginView() {
                 Masuk ke TokoKu!
               </h1>
 
-              <form action="#" className=" mt-8 grid grid-cols-6 gap-6">
+              {alert && (
+                <div className={`mt-4 p-4 rounded ${alert.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+                  {alert.message}
+                </div>
+              )}
+
+              <form action="#" className=" mt-8 grid grid-cols-6 gap-6" onSubmit={handleSubmit}>
                 <div className="col-span-6">
                   <label
                     htmlFor="Email"
@@ -29,6 +132,8 @@ export default function LoginView() {
                     type="email"
                     id="Email"
                     name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
                     placeholder="your email"
                     className="mt-1 w-full rounded-md border-gray-200  bg-white p-2 pe-12 text-sm text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                   />
@@ -45,14 +150,16 @@ export default function LoginView() {
                     type="password"
                     id="Password"
                     name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
                     placeholder="create a password"
                     className="mt-1 w-full rounded-md border-gray-200  bg-white p-2 pe-12 text-sm text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                   />
                 </div>
 
                 <div className="col-span-6 mt-2 flex flex-col sm:items-center">
-                  <button className="mb-4 inline-block w-full rounded-md border border-[#a9ca4e] bg-[#a9ca4e] px-12 py-3 text-sm font-medium text-white transition hover:bg-transparent hover:text-[#859F3D] focus:outline-none focus:ring active:text-blue-500 dark:hover:bg-blue-700 dark:hover:text-white">
-                    Login
+                  <button disabled={loading} className="mb-4 inline-block w-full rounded-md border border-[#a9ca4e] bg-[#a9ca4e] px-12 py-3 text-sm font-medium text-white transition hover:bg-transparent hover:text-[#859F3D] focus:outline-none focus:ring active:text-blue-500 dark:hover:bg-blue-700 dark:hover:text-white">
+                    {loading ? "Logging in..." : "Login"}
                   </button>
 
                   <p className="mt-2 text-sm text-gray-500 sm:mt-0 dark:text-gray-400">

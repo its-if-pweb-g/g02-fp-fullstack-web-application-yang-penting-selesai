@@ -60,6 +60,12 @@ export default function RegisterView() {
     e.preventDefault(); 
     setLoading(true);
 
+    if( !formData.username || !formData.email || !formData.password || !formData.confirmPassword ) {
+      setAlert({ message: "All fields are required.", type: "error" });
+      setLoading(false);
+      return;
+    }
+
     if (!isUsernameValid) {
       setAlert({ message: "Username can only contain letters, numbers, and underscores. It must be between 3 and 20 characters long and cannot start or end with an underscore.", type: "error" });
       setLoading(false);
@@ -247,7 +253,7 @@ export default function RegisterView() {
 
                 <div className="col-span-6 mt-2 flex flex-col sm:items-center">
                   <button type="submit" disabled={loading} className="mb-4 inline-block w-full rounded-md border border-[#a9ca4e] bg-[#a9ca4e] px-12 py-3 text-sm font-medium text-white transition hover:bg-transparent hover:text-[#859F3D] focus:outline-none focus:ring active:text-blue-500 dark:hover:bg-blue-700 dark:hover:text-white">
-                    Daftar
+                    {loading ? "Registering..." : "Register"}
                   </button>
 
                   <p className="mt-2 text-sm text-gray-500 sm:mt-0 dark:text-gray-400">

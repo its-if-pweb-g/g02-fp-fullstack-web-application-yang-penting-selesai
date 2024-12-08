@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
 import clientPromise from "@/app/utils/dbConfig"
 
 export async function POST(req: Request) {
@@ -21,7 +22,9 @@ export async function POST(req: Request) {
         return NextResponse.json({ message: "Username or email already exists" }, { status: 400 });
       }
   
-      const newUser = { username, email, password };
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const newUser = { username, email, password: hashedPassword };
       const result = await db.collection("users").insertOne(newUser);
   
       return NextResponse.json({ message: "User registered successfully", userId: result.insertedId }, { status: 201 });
