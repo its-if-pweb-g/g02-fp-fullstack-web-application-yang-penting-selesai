@@ -28,15 +28,16 @@ export async function POST(req: Request) {
   
       const token = jwt.sign(
         { id: user._id, email: user.email },
-        process.env.JWT_SECRET!,
-        { expiresIn: "1h" }
+        process.env.JWT_SECRET!
       );
-  
-      return NextResponse.json({
+
+      const response = NextResponse.json({
         message: "Login successful",
-        token,
+        token: token
       }, { status: 200 });
   
+      return response;
+
     } catch (error) {
       console.error("Login Error:", error);
       return NextResponse.json({ message: "Internal server error" }, { status: 500 });
