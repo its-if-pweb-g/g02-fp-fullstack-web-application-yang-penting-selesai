@@ -2,7 +2,7 @@ export default function LoginView() {
   return (
     <div className="mx-auto max-w-lg ">
       <section className="rounded-lg shadow-lg bg-white dark:bg-gray-900">
-        <div className="flex flex-col lg:min-h-screen">
+        <div className="flex flex-col ">
           <div className="relative block h-16">
             <img
               alt=""
@@ -17,6 +17,9 @@ export default function LoginView() {
                 Masuk ke TokoKu!
               </h1>
 
+              <p className="mt-4 text-gray-500 dark:text-gray-400">
+                Login sekarang agar dapat melakukan transaksi di TokoKu.
+              </p>
               <form action="#" className=" mt-8 grid grid-cols-6 gap-6">
                 <div className="col-span-6">
                   <label
