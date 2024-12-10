@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAuth } from "../context/AuthContext";
+import { useRouter } from "next/navigation";
 import { products } from "../data/Products";
 import {
   ShoppingCart,
@@ -22,11 +24,14 @@ const NAV_LINKS = [
 ];
 
 export default function Navbar() {
+
+  const router = useRouter();
+
+  const { isAuthenticated, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAuthIconClick, setIsAuthIconClick] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,6 +51,12 @@ export default function Navbar() {
   };
 
   const handleAuth = () => {
+    if( isAuthenticated ) {
+      logout();
+    }
+  };
+
+  const handleAuthIconClick = () => {
     setIsAuthIconClick((prev) => !prev);
   };
 
@@ -111,7 +122,7 @@ export default function Navbar() {
 
             <button
               className="hidden md:block hover:text-[#bade57]"
-              onClick={handleAuth}>
+              onClick={handleAuthIconClick}>
               <User size={24} />
             </button>
 

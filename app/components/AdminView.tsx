@@ -2,7 +2,7 @@
 
 import { products } from "../data/Products";
 import { PlusCircle } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Product } from "./ProductTable";
 
 const TABLE = {
@@ -11,15 +11,17 @@ const TABLE = {
 };
 
 const FORM_DATA = [
-  { name: "Name", type: "text" },
-  { name: "Category", type: "text" },
-  { name: "Description", type: "text" },
-  { name: "Price", type: "number" },
-  { name: "Discount", type: "number" },
-  { name: "Image", type: "file" },
+  { name: "name", type: "text" },
+  { name: "category", type: "text" },
+  { name: "description", type: "text" },
+  { name: "price", type: "number" },
+  { name: "discount", type: "number" },
+  { name: "image", type: "file" },
 ];
 
 export default function AdminView() {
+
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [activeRow, setActiveRow] = useState<Number | null>(null);
   const [addProduct, setAddProduct] = useState(false);
 
@@ -32,10 +34,61 @@ export default function AdminView() {
     setActiveRow(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback( async (e: React.FormEvent) => {
+
     e.preventDefault();
-    console.log("Product Submitted!");
-  };
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const imageFile = formData.get('image') as File;
+    
+    formData.delete('image');
+    const productData = Object.fromEntries(formData.entries());
+
+    setUploadStatus('uploading');
+
+    try {
+
+      if (imageFile && imageFile.size > 0) {
+        
+        const imageFormData = new FormData();
+        imageFormData.append('image', imageFile);
+
+        const imageRes = await fetch('http://35.193.181.126:3000/upload-image', {
+            method: 'POST',
+            body: imageFormData
+        });
+
+        if (!imageRes.ok) {
+            throw new Error('Failed to upload image');
+        }
+
+        const { imageURL } = await imageRes.json();
+        productData.imageURL = imageURL;
+      
+      }
+
+      const productRes = await fetch('/api/add-product', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productData),
+      });
+  
+      if (productRes.ok) {
+        setUploadStatus('success');
+        console.log('Product added successfully');
+      
+      } else {
+        setUploadStatus('failed');
+        console.error('Failed to add product');
+      
+      }
+
+    } catch (error) {
+      setUploadStatus('failed');
+      console.error('Error:', error);
+    }
+
+  }, []);
 
   return (
     <div className="my-12 lg:py-6 px-8 max-w-screen-xl bg-zinc-50 rounded-xl mx-auto flex flex-col shadow-lg">
@@ -60,6 +113,25 @@ export default function AdminView() {
         <div className="w-full h-full fixed top-0 left-0 flex items-center justify-center backdrop-filter backdrop-blur-sm backdrop-brightness-75 z-50">
           <div className="bg-white p-10 rounded-lg text-center shadow-lg border-[1px] border-solid border-black">
             <h2 className="text-xl font-bold mb-4">Add new product </h2>
+
+            {uploadStatus === 'uploading' && (
+              <div className="mb-4 p-4 text-sm text-blue-800 bg-blue-50 rounded-lg">
+                <span className="font-medium">Uploading...</span> Please wait while the data is being uploaded.
+              </div>
+            )}
+
+            {uploadStatus === 'success' && (
+              <div className="mb-4 p-4 text-sm text-green-800 bg-green-50 rounded-lg">
+                <span className="font-medium">Success!</span> Product has been added successfully.
+              </div>
+            )}
+
+            {uploadStatus === 'failed' && (
+              <div className="mb-4 p-4 text-sm text-red-800 bg-red-50 rounded-lg">
+                <span className="font-medium">Error!</span> Something went wrong. Please try again.
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4 w-[600px] ">
               {FORM_DATA.map((item) => (
                 <div
@@ -76,15 +148,21 @@ export default function AdminView() {
                     placeholder={item.name}
                     type={item.type}
                     id={item.name}
+                    name={item.name}
                   />
                 </div>
               ))}
+              <button 
+                type="submit"
+                disabled={uploadStatus === 'uploading'}
+                className={`text-sm mt-8 px-4 py-2 rounded-lg transition-all ease-in-out cursor-pointer ${
+                  uploadStatus === 'uploading'
+                    ? 'bg-gray-400 text-white cursor-not-allowed'
+                    : 'bg-[#859F3D] text-white hover:bg-[#afd053] hover:-translate-y-1'
+                }`}>
+                {uploadStatus === 'uploading' ? 'Uploading...' : 'Add to database'}
+              </button>
             </form>
-            <button
-              className="text-sm mt-8 px-4 py-2 bg-[#859F3D] text-white rounded-lg hover:bg-[#afd053] transition-all ease-in-out cursor-pointer hover:-translate-y-1"
-              onClick={handleAddProduct}>
-              Add to database
-            </button>
           </div>
         </div>
       )}

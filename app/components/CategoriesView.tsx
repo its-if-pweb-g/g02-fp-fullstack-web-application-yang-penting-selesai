@@ -2,7 +2,6 @@ import Link from "next/link";
 import React, { useState } from "react";
 import ProductCard from "../components/ProductCard";
 import DropDownIcon from "./Icon";
-import { products } from "./page.tsx";
 
 // nanti dipanggil dari database
 const products = [
