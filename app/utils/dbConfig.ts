@@ -1,6 +1,9 @@
 import { MongoClient } from "mongodb";
 
-const uri = "";
+// Ini bisa langsung diubah disini atau 
+// tambahkan connection string MongoDB lewat file .env (rekomen)
+const uri = process.env.MONGODB_URI || "";
+
 const options = {};
 
 let client: MongoClient;
