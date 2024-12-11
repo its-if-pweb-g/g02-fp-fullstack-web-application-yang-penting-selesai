@@ -5,7 +5,6 @@ import Footer from "./components/Footer";
 import { Metadata } from "next";
 import Announcement from "./components/Announcement";
 import { AuthProvider } from "./context/AuthContext";
-import { CartProvider } from "./context/CartContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -46,14 +45,12 @@ export default function RootLayout({
     <html lang="id" className="scroll-smooth">
       <body className="bg-white min-h-screen flex flex-col antialiased">
         <div className="flex flex-col flex-grow ">
-          {/* <CartProvider> */}
           <AuthProvider>
             <Announcement />
             <Navbar />
             <main>{children}</main>
             <Footer />
           </AuthProvider>
-          {/* </CartProvider> */}
         </div>
       </body>
     </html>

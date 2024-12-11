@@ -1,25 +1,25 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { Trash2, ShoppingCart, Plus, Minus } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import Link from 'next/link';
+import React, { useEffect, useState, useCallback } from "react";
+import { Trash2, ShoppingCart, Plus, Minus } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import Link from "next/link";
 
-interface Product {
+export interface Products {
   name: string;
   price: number;
   image: string;
   description?: string;
 }
 
-interface CartItem {
+export interface CartItem {
   _id: string;
   productId: string;
   quantity: number;
-  product: Product | null;
+  product: Products | null;
 }
 
-interface CartSummary {
+export interface CartSummary {
   totalItems: number;
   totalQuantity: number;
   totalValue: number;
@@ -44,10 +44,10 @@ export default function CartPage() {
       const res = await fetch(`/api/cart?userId=${user.id}`, {
         method: "GET",
         headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
       });
 
       if (!res.ok) {
@@ -63,7 +63,9 @@ export default function CartPage() {
       }
     } catch (error) {
       console.error("Error fetching cart:", error);
-      setError(error instanceof Error ? error.message : "An unexpected error occurred");
+      setError(
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      );
       setCart(null);
     } finally {
       setLoading(false);
@@ -72,80 +74,76 @@ export default function CartPage() {
 
   useEffect(() => {
     fetchCart();
-
   }, [fetchCart]);
 
   const handleRemoveItem = async (productId: string) => {
-
     if (!user?.id) return;
 
     try {
-      const res = await fetch('/api/cart', {
-        method: 'DELETE',
+      const res = await fetch("/api/cart", {
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
-          userId: user.id, 
-          productId 
-        })
+        body: JSON.stringify({
+          userId: user.id,
+          productId,
+        }),
       });
 
       if (!res.ok) {
-        throw new Error('Failed to remove item');
+        throw new Error("Failed to remove item");
       }
 
-      setCart(prevCart => {
+      setCart((prevCart) => {
         if (!prevCart) return null;
         return {
           ...prevCart,
-          items: prevCart.items.filter(item => item.productId !== productId)
+          items: prevCart.items.filter((item) => item.productId !== productId),
         };
       });
-
     } catch (error) {
-      console.error('Error removing item:', error);
-      setError(error instanceof Error ? error.message : "Failed to remove item");
-    
+      console.error("Error removing item:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to remove item"
+      );
     }
-
   };
 
   const handleQuantityChange = async (productId: string, quantity: number) => {
-
     if (!user?.id || quantity < 1) return;
 
     try {
-      const res = await fetch('/api/cart', {
-        method: 'PUT',
+      const res = await fetch("/api/cart", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
-          userId: user.id, 
-          productId, 
-          quantity 
-        })
+        body: JSON.stringify({
+          userId: user.id,
+          productId,
+          quantity,
+        }),
       });
 
       if (!res.ok) {
-        throw new Error('Failed to update quantity');
+        throw new Error("Failed to update quantity");
       }
 
-      setCart(prevCart => {
+      setCart((prevCart) => {
         if (!prevCart) return null;
         return {
           ...prevCart,
-          items: prevCart.items.map(item => 
-            item.productId === productId 
-              ? { ...item, quantity } 
-              : item
-          )
+          items: prevCart.items.map((item) =>
+            item.productId === productId ? { ...item, quantity } : item
+          ),
         };
       });
     } catch (error) {
-      console.error('Error updating quantity:', error);
-      setError(error instanceof Error ? error.message : "Failed to update quantity");
+      console.error("Error updating quantity:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to update quantity"
+      );
     }
   };
 
@@ -169,10 +167,9 @@ export default function CartPage() {
     return (
       <div className="text-center text-red-500 p-6">
         <p>{error}</p>
-        <button 
-          onClick={fetchCart} 
-          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-        >
+        <button
+          onClick={fetchCart}
+          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
           Ulangi Lagi
         </button>
       </div>
@@ -184,9 +181,11 @@ export default function CartPage() {
       <div className="text-center p-6">
         <ShoppingCart className="mx-auto mb-4" size={48} />
         <h1 className="text-2xl mb-2">Your cart is empty</h1>
-        <p className="text-gray-600">Looks like you haven't added any items yet.</p>
+        <p className="text-gray-600">
+          Looks like you haven't added any items yet.
+        </p>
         <Link href="/">
-          <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
+          <button className="mt-4 bg-[#76ac38] hover:bg-[#bade57] text-white px-4 py-2 rounded">
             Lanjutkan Belanja
           </button>
         </Link>
@@ -203,13 +202,12 @@ export default function CartPage() {
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
           {cart.items.map((item) => (
-            <div 
-              key={item.productId} 
-              className="flex items-center border-b py-4 hover:bg-gray-50 transition-colors"
-            >
-              <img 
-                src={item.product?.image || "placeholder.jpg"} 
-                alt={item.product?.name || "Product Image"} 
+            <div
+              key={item.productId}
+              className="flex items-center border-b py-4 hover:bg-gray-50 transition-colors">
+              <img
+                src={item.product?.image || "placeholder.jpg"}
+                alt={item.product?.name || "Product Image"}
                 className="w-24 h-24 object-cover rounded mr-4"
               />
 
@@ -223,32 +221,33 @@ export default function CartPage() {
               </div>
 
               <div className="flex items-center mr-4">
-                <button 
-                  onClick={() => handleQuantityChange(item.productId, item.quantity - 1)}
-                  className="bg-gray-200 p-2 rounded-l"
-                >
+                <button
+                  onClick={() =>
+                    handleQuantityChange(item.productId, item.quantity - 1)
+                  }
+                  className="bg-gray-200 p-2 rounded-l">
                   <Minus size={16} />
                 </button>
                 <span className="px-4 border-y">{item.quantity}</span>
-                <button 
-                  onClick={() => handleQuantityChange(item.productId, item.quantity + 1)}
-                  className="bg-gray-200 p-2 rounded-r"
-                >
+                <button
+                  onClick={() =>
+                    handleQuantityChange(item.productId, item.quantity + 1)
+                  }
+                  className="bg-gray-200 p-2 rounded-r">
                   <Plus size={16} />
                 </button>
               </div>
 
-              <button 
+              <button
                 onClick={() => handleRemoveItem(item.productId)}
-                className="text-red-500 hover:bg-red-50 p-2 rounded"
-              >
+                className="text-red-500 hover:bg-red-50 p-2 rounded">
                 <Trash2 />
               </button>
             </div>
           ))}
         </div>
 
-        <div className="bg-white shadow-md rounded-lg p-6">
+        <div className="bg-white h-min shadow-md rounded-lg p-6">
           <h2 className="text-2xl font-bold mb-4">Ringkasan Pemesanan</h2>
           <div className="space-y-2">
             <div className="flex justify-between">
@@ -267,7 +266,7 @@ export default function CartPage() {
             </div>
           </div>
           <Link href="/checkout">
-            <button className="w-full mt-6 bg-green-500 text-white py-3 rounded hover:bg-green-600 transition-colors">
+            <button className="w-full mt-6 bg-[#a9ca4e] text-white py-3 rounded hover:bg-[#bade57] transition-colors">
               Lanjutkan Ke Checkout
             </button>
           </Link>

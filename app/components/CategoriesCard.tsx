@@ -4,22 +4,22 @@ const CATEGORIES_CARD = [
   {
     name: "Electronics Device",
     image: "/img/responsive.png",
-    href: "/category",
+    href: "/category?name=Electronics",
   },
   {
     name: "Fashion",
     image: "/img/fashionIcon.png",
-    href: "/category",
+    href: "/category?name=Fashion",
   },
   {
     name: "Sports",
     image: "/img/sportIcon.png",
-    href: "/category",
+    href: "/category?name=Sports",
   },
   {
     name: "Beauty & Care",
     image: "/img/skin-care.png",
-    href: "/category",
+    href: "/category?name=Beauty%20&%20Care",
   },
 ];
 

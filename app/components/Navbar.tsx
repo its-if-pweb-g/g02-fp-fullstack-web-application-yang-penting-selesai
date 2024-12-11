@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { products } from "../data/Products";
 import { Product } from "./ProductCard";
+import { Products, CartItem, CartSummary } from "../cart/page";
 import {
   ShoppingCart,
   Menu,
@@ -17,11 +18,11 @@ import {
 } from "lucide-react";
 
 const NAV_LINKS = [
-  { href: "/category", label: "All" },
-  { href: "/category", label: "Electronics" },
-  { href: "/category", label: "Fashion" },
-  { href: "/category", label: "Sports" },
-  { href: "/category", label: "Beauty & Care" },
+  { href: "/category?name=All", label: "All" },
+  { href: "/category?name=Electronics", label: "Electronics" },
+  { href: "/category?name=Fashion", label: "Fashion" },
+  { href: "/category?name=Sports", label: "Sports" },
+  { href: "/category?name=Beauty+&+Care", label: "Beauty & Care" },
 ];
 
 export default function Navbar() {
@@ -124,6 +125,56 @@ export default function Navbar() {
     };
   }, [handleKeyDown]);
 
+  const { user } = useAuth();
+  const [cart, setCart] = useState<{
+    items: CartItem[];
+    summary?: CartSummary;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchCart = useCallback(async () => {
+    if (!user?.id) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/cart?userId=${user.id}`, {
+        method: "GET",
+        headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch cart data");
+      }
+
+      const data = await res.json();
+
+      if (!data.cart || data.cart.items.length === 0) {
+        setCart(null);
+      } else {
+        setCart(data.cart);
+      }
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      setError(
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      );
+      setCart(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
+
   return (
     <header
       className={`sticky top-0 z-50 text-sm shadow-md transition-colors duration-300 ${
@@ -197,9 +248,9 @@ export default function Navbar() {
           <div className="flex items-center space-x-4">
             <Link href="/cart" className="relative hover:text-[#bade57]">
               <ShoppingCart size={24} />
-              {/* <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full px-1.5 py-0.5">
-                {cartCount}
-              </span> */}
+              <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full px-1.5 py-0.5">
+                {!cart ? 0 : cart.items.length}
+              </span>
             </Link>
 
             <button

@@ -8,7 +8,6 @@ import { Product } from "../../components/ProductCard";
 import { useAuth } from "@/app/context/AuthContext";
 
 export default function ProductDetailPage() {
-
   const { isAuthenticated, user } = useAuth();
   const { id } = useParams();
   const router = useRouter();
@@ -33,45 +32,70 @@ export default function ProductDetailPage() {
 
   const selectedProduct = productList.find((product) => product._id === id);
 
-  const handleAddToCart = useCallback ( async () => {
-
+  const handleAddToCart = useCallback(async () => {
     if (selectedProduct) {
-
-      if( !isAuthenticated ) {
+      if (!isAuthenticated) {
         router.push("/auth/login");
         return;
       }
 
       try {
-
         const res = await fetch("/api/cart", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({userId: user?.id, productId: selectedProduct._id, quantity: 1}),
+          body: JSON.stringify({
+            userId: user?.id,
+            productId: selectedProduct._id,
+            quantity: 1,
+          }),
         });
-    
+
         if (!res.ok) {
           throw new Error("Failed to add to cart");
         }
-    
+
         const data = await res.json();
         console.log(data.message);
         alert(`✅ ${selectedProduct.name} Berhasil menambahkan ke keranjang!`);
-
       } catch (error) {
         console.error("Error adding to cart:", error);
         alert(`X ${selectedProduct._id} Gagal menambahkan ke keranjang!`);
-
       }
-
     }
-  
   }, [selectedProduct]);
 
-  const handleCheckout = () => {
-    alert("🔗 Melanjutkan ke proses pembayaran...");
-    router.push("/checkout");
-  };
+  const handleCheckout = useCallback(async () => {
+    if (selectedProduct) {
+      if (!isAuthenticated) {
+        router.push("/auth/login");
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/cart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: user?.id,
+            productId: selectedProduct._id,
+            quantity: 1,
+          }),
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to add to cart");
+        }
+
+        const data = await res.json();
+        console.log(data.message);
+        alert(`Melanjutkan ke proses pembayaran!`);
+        router.push("/checkout");
+      } catch (error) {
+        console.error("Error adding to cart:", error);
+        alert(`X ${selectedProduct._id} Gagal menambahkan ke keranjang!`);
+      }
+    }
+  }, [selectedProduct]);
 
   return (
     <div className="container mx-auto px-4 py-6">

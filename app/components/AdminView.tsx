@@ -20,6 +20,9 @@ export default function AdminView() {
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [activeRow, setActiveRow] = useState<string | null>(null);
   const [addProduct, setAddProduct] = useState(false);
+  const [editProduct, setEditProduct] = useState(false);
+  const [editProductSelected, setEditProductSelected] =
+    useState<Product | null>(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -49,7 +52,17 @@ export default function AdminView() {
     setActiveRow(null);
   };
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+  const handleEditProduct = (productId: string) => {
+    setEditProduct((prev) => !prev);
+    const selectedProduct = products.find(
+      (product) => product._id === productId
+    );
+    setEditProductSelected(selectedProduct || null);
+    console.log(editProductSelected);
+    setActiveRow(null);
+  };
+
+  const handleAddSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
     const formData = new FormData(e.target as HTMLFormElement);
@@ -99,6 +112,62 @@ export default function AdminView() {
       console.error("Error:", error);
     }
   }, []);
+
+  const handleEditSubmit = useCallback(
+    async (e: React.FormEvent, productId: string) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.target as HTMLFormElement);
+      const imageFile = formData.get("image") as File;
+
+      formData.delete("image");
+      const updatedProductData = Object.fromEntries(formData.entries());
+      updatedProductData.id = productId;
+
+      setUploadStatus("uploading");
+
+      try {
+        if (imageFile && imageFile.size > 0) {
+          const imageFormData = new FormData();
+          imageFormData.append("image", imageFile);
+
+          const imageRes = await fetch(
+            "http://35.193.181.126:3000/upload-image",
+            {
+              method: "POST",
+              body: imageFormData,
+            }
+          );
+
+          if (!imageRes.ok) {
+            throw new Error("Failed to upload image");
+          }
+
+          const { imageURL } = await imageRes.json();
+          updatedProductData.imageURL = imageURL;
+        }
+
+        const updateRes = await fetch(`/api/products/edit-product`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedProductData),
+        });
+
+        if (updateRes.ok) {
+          setUploadStatus("success");
+          console.log("Product updated successfully");
+        } else {
+          const errorDetails = await updateRes.json();
+          setUploadStatus("failed");
+          console.error("Failed to update product:", errorDetails);
+        }
+      } catch (error) {
+        setUploadStatus("failed");
+        console.error("Error:", error);
+      }
+    },
+    []
+  );
 
   const handleDeleteProduct = useCallback(async (id: string) => {
     const confirmDelete = window.confirm(
@@ -177,7 +246,7 @@ export default function AdminView() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4 w-[600px] ">
+            <form onSubmit={handleAddSubmit} className="space-y-4 w-[600px] ">
               {FORM_DATA.map((item) => (
                 <div
                   key={item.name}
@@ -261,7 +330,9 @@ export default function AdminView() {
                   {activeRow === item._id && (
                     <div className="w-32 h-min flex flex-col text-sm bg-white mt-2 p-4 space-y-4 shadow-lg border rounded-md absolute z-10">
                       <h3 className="font-semibold">Actions</h3>
-                      <button className="hover:text-[#859F3D] text-left items-center">
+                      <button
+                        onClick={() => handleEditProduct(item._id)}
+                        className="hover:text-[#859F3D] text-left items-center">
                         Edit
                       </button>
                       <button
@@ -277,6 +348,83 @@ export default function AdminView() {
           </tbody>
         </table>
       </div>
+
+      {editProduct && (
+        <div
+          className="w-full h-full fixed top-0 left-0 flex items-center justify-center backdrop-filter backdrop-blur-sm backdrop-brightness-75 z-50"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setEditProduct(false);
+            }
+          }}>
+          <div className="bg-white p-10 rounded-lg text-center shadow-lg border-[1px] border-solid border-black">
+            <h2 className="text-xl font-bold mb-4">Edit product </h2>
+
+            {uploadStatus === "uploading" && (
+              <div className="mb-4 p-4 text-sm text-blue-800 bg-blue-50 rounded-lg">
+                <span className="font-medium">Uploading...</span> Please wait
+                while the data is being uploaded.
+              </div>
+            )}
+
+            {uploadStatus === "success" && (
+              <div className="mb-4 p-4 text-sm text-green-800 bg-green-50 rounded-lg">
+                <span className="font-medium">Success!</span> Product has been
+                edited successfully.
+              </div>
+            )}
+
+            {uploadStatus === "failed" && (
+              <div className="mb-4 p-4 text-sm text-red-800 bg-red-50 rounded-lg">
+                <span className="font-medium">Error!</span> Something went
+                wrong. Please try again.
+              </div>
+            )}
+
+            <form
+              onSubmit={(e) =>
+                handleEditSubmit(e, editProductSelected?._id ?? "")
+              }
+              className="space-y-4 w-[600px] ">
+              {FORM_DATA.map((item) => (
+                <div
+                  key={item.name}
+                  className="grid-cols-8 grid gap-4 items-center">
+                  <label
+                    className="block text-sm col-span-1 text-left "
+                    htmlFor="name">
+                    {item.name}
+                  </label>
+                  {":"}
+                  <input
+                    className="rounded-lg col-span-6 border border-gray-200 p-4 text-sm"
+                    type={item.type}
+                    id={item.name}
+                    name={item.name}
+                    defaultValue={
+                      editProductSelected?.[item.name as keyof Product] ??
+                      undefined
+                    }
+                  />
+                </div>
+              ))}
+              <button
+                type="submit"
+                disabled={uploadStatus === "uploading"}
+                className={`text-sm mt-8 px-4 py-2 rounded-lg transition-all ease-in-out cursor-pointer ${
+                  uploadStatus === "uploading"
+                    ? "bg-gray-400 text-white cursor-not-allowed"
+                    : "bg-[#859F3D] text-white hover:bg-[#afd053] hover:-translate-y-1"
+                }`}>
+                {uploadStatus === "uploading"
+                  ? "Uploading..."
+                  : "Update database"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div>
         <div className="flex items-center justify-center px-4 py-3 sm:px-6">
           <p className="text-sm">
