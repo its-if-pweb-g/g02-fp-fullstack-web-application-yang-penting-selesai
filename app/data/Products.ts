@@ -1,7 +1,7 @@
 export const products = [
   {
     id: 1,
-    name: "Product 1",
+    name: "Handphone",
     price: 99.99,
     image: "/product1.jpg",
     discountPercentage: 20,
@@ -9,7 +9,7 @@ export const products = [
   },
   {
     id: 2,
-    name: "Product 2",
+    name: "Laptop",
     price: 79.99,
     image: "/product2.jpg",
     discountPercentage: 30,
@@ -17,21 +17,21 @@ export const products = [
   },
   {
     id: 3,
-    name: "Product 3",
+    name: "Smarthphone",
     price: 49.99,
     image: "/product3.jpg",
     rating: 4.2,
   },
   {
     id: 4,
-    name: "Product 1",
+    name: "TV",
     price: 99.99,
     image: "/product4.jpg",
     rating: 4.5,
   },
   {
     id: 5,
-    name: "Product 2",
+    name: "Tablet",
     price: 79.99,
     image: "/product5.jpg",
     discountPercentage: 75,
@@ -39,14 +39,14 @@ export const products = [
   },
   {
     id: 6,
-    name: "Product 3",
+    name: "AC",
     price: 49.99,
     image: "/product6.jpg",
     rating: 3.8,
   },
   {
     id: 7,
-    name: "Product 2",
+    name: "Camera",
     price: 79.99,
     image: "/product5.jpg",
     discountPercentage: 50,
@@ -54,7 +54,7 @@ export const products = [
   },
   {
     id: 8,
-    name: "Product 3",
+    name: "PC",
     price: 49.99,
     image: "/product6.jpg",
     rating: 3.5,

@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { products } from "../data/Products";
+import { Product } from "./ProductCard";
 import {
   ShoppingCart,
   Menu,
@@ -24,7 +25,6 @@ const NAV_LINKS = [
 ];
 
 export default function Navbar() {
-
   const router = useRouter();
 
   const { isAuthenticated, logout } = useAuth();
@@ -32,6 +32,9 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAuthIconClick, setIsAuthIconClick] = useState(false);
+  const [productList, setProductList] = useState<Product[]>([]);
+  const [filterProductList, setFilterProductList] = useState<Product[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,6 +47,21 @@ export default function Navbar() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
+
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("/api/products");
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setProductList(data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   const toggleMenu = () => {
@@ -51,7 +69,7 @@ export default function Navbar() {
   };
 
   const handleAuth = () => {
-    if( isAuthenticated ) {
+    if (isAuthenticated) {
       logout();
     }
   };
@@ -66,6 +84,51 @@ export default function Navbar() {
       console.log("Mencari:", searchQuery);
     }
   };
+
+  useEffect(() => {
+    const filteredProducts = products.filter((product) => {
+      return product.name.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+
+    setFilterProductList(filteredProducts);
+    setSelectedIndex(-1);
+
+    if (filteredProducts.length > 0) {
+      console.log("ini product list");
+      for (let i = 0; i < filteredProducts.length; i++) {
+        console.log(filteredProducts[i]);
+      }
+    }
+  }, [searchQuery, products]);
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === "ArrowDown") {
+        setSelectedIndex((prevIndex) =>
+          prevIndex < filterProductList.length - 1 ? prevIndex + 1 : prevIndex
+        );
+        event.preventDefault();
+      } else if (event.key === "ArrowUp") {
+        setSelectedIndex((prevIndex) =>
+          prevIndex > 0 ? prevIndex - 1 : prevIndex
+        );
+        event.preventDefault();
+      } else if (event.key === "Enter") {
+        if (selectedIndex >= 0) {
+          const selectedManga = filterProductList[selectedIndex];
+          window.location.href = `/product/${selectedManga.id}`;
+        }
+      }
+    },
+    [filterProductList, selectedIndex]
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   return (
     <header
@@ -95,7 +158,7 @@ export default function Navbar() {
         </div>
 
         <form
-          onSubmit={handleSearch}
+          onSubmit={(e) => e.preventDefault()}
           className="hidden md:flex relative items-center w-full max-w-12 md:max-w-60 lg:max-w-sm xl:max-w-lg ">
           <input
             type="text"
@@ -109,6 +172,30 @@ export default function Navbar() {
           <button type="submit" className="absolute right-3">
             <Search size={18} className="text-gray-500" />
           </button>
+
+          {searchQuery && (
+            <div
+              className={`hidden md:flex flex-col my-7 absolute top-10 z-10 border-[1px] shadow-md ${
+                isScrolled ? "bg-white text-black" : "bg-[#1A1A19] text-white"
+              } rounded-md  w-full max-w-12 md:max-w-60 lg:max-w-sm xl:max-w-lg translate-y-[-10px] transition-opacity duration-300 ease-in `}>
+              {filterProductList.map((product, index) => (
+                <Link
+                  key={product.id}
+                  href={`/product/${product.id}`}
+                  onMouseEnter={() => setSelectedIndex(index)}
+                  className={`hover:text-[#bade57] hover:${
+                    isScrolled ? "bg-zinc-50" : "bg-[#1A1A19]"
+                  } ${
+                    selectedIndex === index ? "text-[#bade57]" : ""
+                  }  p-[10px] m-0 cursor-pointer transition-colors duration-300`}>
+                  <div className="flex space-x-2">
+                    <Search size={18} className="text-gray-400" />
+                    <p className="text-sm">{product.name}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </form>
 
         <div className="md:flex items-center space-x-6 ">
