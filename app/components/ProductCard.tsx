@@ -1,9 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Heart, ShoppingCart, Star } from "lucide-react";
+import { useState } from "react";
 
 export interface Product {
-  id: number;
+  _id: string;
   name: string;
   price: number;
   image: string;
@@ -11,9 +14,16 @@ export interface Product {
   category?: string;
   rating?: number;
   discountPercentage?: number;
+  discount?: number;
 }
 
 const ProductCard = ({ product }: { product: Product }) => {
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const handleFavoriteIcon = () => {
+    setIsFavorite(!isFavorite);
+  };
+
   const discountedPrice = product.discountPercentage
     ? product.price * (1 - product.discountPercentage / 100)
     : product.price;
@@ -45,7 +55,13 @@ const ProductCard = ({ product }: { product: Product }) => {
   return (
     <div className=" text-sm group relative bg-zinc-50 shadow-lg rounded-xl overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
       <button className="absolute top-4 right-4 z-10 bg-white/70 p-2 rounded-full hover:bg-white hover:shadow-lg transition-all">
-        <Heart size={20} className="text-gray-600 hover:text-red-500" />
+        <Heart
+          size={20}
+          className={`text-gray-600 hover:text-red-500 ${
+            isFavorite ? "fill-red-500 text-red-500" : ""
+          }`}
+          onClick={(e) => handleFavoriteIcon()}
+        />
       </button>
 
       <div className="relative w-full pt-[100%]">
@@ -65,18 +81,19 @@ const ProductCard = ({ product }: { product: Product }) => {
       </div>
 
       <div className="p-4">
-        <div className="flex items-center justify-between">
+        <div className="flex justify-between">
           <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
             {product.name}
           </h3>
 
-          <div className="flex justify-between items-center mb-2">
+          <div className="flex flex-col items-end space-y-2 mb-2">
+            {renderStarRating(product.rating)}
+
             {product.category && (
               <span className="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600">
                 {product.category}
               </span>
             )}
-            {renderStarRating(product.rating)}
           </div>
         </div>
 
@@ -98,13 +115,15 @@ const ProductCard = ({ product }: { product: Product }) => {
             )}
           </div>
 
-          <button className="bg-[#859F3D] text-white p-2 rounded-full hover:bg-[#bade57] transition-colors">
-            <ShoppingCart size={18} />
-          </button>
+          <Link href={`/product/${product._id}`}>
+            <button className="bg-[#859F3D] text-white p-2 rounded-full hover:bg-[#bade57] transition-colors">
+              <ShoppingCart size={18} />
+            </button>
+          </Link>
         </div>
 
         <Link
-          href={`/product/${product.id}`}
+          href={`/product/${product._id}`}
           className="block mt-4 text-center text-[#859F3D] hover:text-[#bade57] transition-colors">
           See product details
         </Link>

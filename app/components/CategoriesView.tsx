@@ -1,48 +1,10 @@
-import Link from "next/link";
-import React, { useState } from "react";
-import ProductCard from "../components/ProductCard";
-import DropDownIcon from "./Icon";
+"use client";
 
-// nanti dipanggil dari database
-const products = [
-  {
-    id: 1,
-    name: "Product 1",
-    price: 99.99,
-    image: "/product1.jpg",
-    discountPercentage: 20,
-  },
-  {
-    id: 2,
-    name: "Product 2",
-    price: 79.99,
-    image: "/product2.jpg",
-    discountPercentage: 30,
-  },
-  {
-    id: 3,
-    name: "Product 3",
-    price: 49.99,
-    image: "/product3.jpg",
-  },
-  { id: 4, name: "Product 1", price: 99.99, image: "/product4.jpg" },
-  {
-    id: 5,
-    name: "Product 2",
-    price: 79.99,
-    image: "/product5.jpg",
-    discountPercentage: 75,
-  },
-  { id: 6, name: "Product 3", price: 49.99, image: "/product6.jpg" },
-  {
-    id: 7,
-    name: "Product 2",
-    price: 79.99,
-    image: "/product5.jpg",
-    discountPercentage: 50,
-  },
-  { id: 8, name: "Product 3", price: 49.99, image: "/product6.jpg" },
-];
+import Link from "next/link";
+import React, { useState, useEffect } from "react";
+import ProductCard from "../components/ProductCard";
+import { Product } from "../components/ProductCard";
+import DropDownIcon from "./Icon";
 
 const SIDE_MENU = {
   categories: [
@@ -61,6 +23,25 @@ const SIDE_MENU = {
 };
 
 export default function CategoriesView() {
+  const [productList, setProductList] = useState<Product[]>([]);
+
+  useEffect(() => {
+    const fetchProductData = async () => {
+      try {
+        const response = await fetch("/api/products");
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setProductList(data.products || []);
+      } catch (error) {
+        console.error("Error fetching product data:", error);
+      }
+    };
+
+    fetchProductData();
+  }, []);
+
   return (
     <div className="max-w-7xl mx-auto grid grid-cols-1 gap-4 lg:grid-cols-5 lg:gap-8">
       <div className="lg:col-span-1">
@@ -130,8 +111,8 @@ export default function CategoriesView() {
         <h2 className="text-2xl font-bold text-left mb-8">All Products</h2>
         {/* panggil product dari database */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {productList.map((product) => (
+            <ProductCard key={product._id} product={product} />
           ))}
         </div>
       </div>

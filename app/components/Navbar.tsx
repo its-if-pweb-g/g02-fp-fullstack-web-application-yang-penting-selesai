@@ -47,7 +47,9 @@ export default function Navbar() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
+  }, []);
 
+  useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await fetch("/api/products");
@@ -55,12 +57,11 @@ export default function Navbar() {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
-        setProductList(data);
+        setProductList(data.products || []);
       } catch (error) {
         console.error("Error fetching products:", error);
       }
     };
-
     fetchProducts();
   }, []);
 
@@ -86,19 +87,12 @@ export default function Navbar() {
   };
 
   useEffect(() => {
-    const filteredProducts = products.filter((product) => {
+    const filteredProducts = productList.filter((product) => {
       return product.name.toLowerCase().includes(searchQuery.toLowerCase());
     });
 
     setFilterProductList(filteredProducts);
     setSelectedIndex(-1);
-
-    if (filteredProducts.length > 0) {
-      console.log("ini product list");
-      for (let i = 0; i < filteredProducts.length; i++) {
-        console.log(filteredProducts[i]);
-      }
-    }
   }, [searchQuery, products]);
 
   const handleKeyDown = useCallback(
@@ -116,7 +110,7 @@ export default function Navbar() {
       } else if (event.key === "Enter") {
         if (selectedIndex >= 0) {
           const selectedManga = filterProductList[selectedIndex];
-          window.location.href = `/product/${selectedManga.id}`;
+          window.location.href = `/product/${selectedManga._id}`;
         }
       }
     },
@@ -180,9 +174,10 @@ export default function Navbar() {
               } rounded-md  w-full max-w-12 md:max-w-60 lg:max-w-sm xl:max-w-lg translate-y-[-10px] transition-opacity duration-300 ease-in `}>
               {filterProductList.map((product, index) => (
                 <Link
-                  key={product.id}
-                  href={`/product/${product.id}`}
+                  key={product._id}
+                  href={`/product/${product._id}`}
                   onMouseEnter={() => setSelectedIndex(index)}
+                  onClick={() => setSearchQuery("")}
                   className={`hover:text-[#bade57] hover:${
                     isScrolled ? "bg-zinc-50" : "bg-[#1A1A19]"
                   } ${
@@ -202,9 +197,9 @@ export default function Navbar() {
           <div className="flex items-center space-x-4">
             <Link href="/cart" className="relative hover:text-[#bade57]">
               <ShoppingCart size={24} />
-              <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full px-1.5 py-0.5">
-                0
-              </span>
+              {/* <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full px-1.5 py-0.5">
+                {cartCount}
+              </span> */}
             </Link>
 
             <button

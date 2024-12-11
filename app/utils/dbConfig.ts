@@ -1,7 +1,11 @@
 import { MongoClient } from "mongodb";
 
+// Ini bisa langsung diubah disini atau
+// tambahkan connection string MongoDB lewat file .env (rekomen)
+// const uri = process.env.MONGODB_URI || "";
 const uri =
-  "mongodb://user-fp-pweb:itssurabaya@35.193.181.126:27017/ecommerce?authSource=admin";
+  "mongodb://admin-db-ecommerce:SecurePass123456789@35.193.181.126:5050/ecommerce?authSource=admin";
+
 const options = {};
 
 let client: MongoClient;
