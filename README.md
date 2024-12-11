@@ -16,8 +16,16 @@ e-commerce
 ### Fitur yang dibuat
 
 ### Link Deployment (jika ada)
+http://34.28.178.162:3000
 
 ## Teknologi yang digunakan
+- NextJS
+- Tailwind CSS
+- TypeScript
+- JWT
+- MongoDB
+- Google Cloud Compute Engine
+- ExpressJS
 
 ## Cara menjalankan aplikasi
 
