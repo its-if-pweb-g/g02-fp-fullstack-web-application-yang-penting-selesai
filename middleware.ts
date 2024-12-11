@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
       
       console.error("Invalid token:", error);
 
-      if (request.nextUrl.pathname.startsWith("/admin")) {
+      if (request.nextUrl.pathname.startsWith("/admin") || request.nextUrl.pathname.startsWith("/cart")) {
         return NextResponse.redirect(new URL("/auth/login", request.url));
       }
   
@@ -42,7 +42,7 @@ export async function middleware(request: NextRequest) {
 
   } else {
 
-    if (request.nextUrl.pathname.startsWith("/admin")) {
+    if (request.nextUrl.pathname.startsWith("/admin") || request.nextUrl.pathname.startsWith("/cart")) {
       return NextResponse.redirect(new URL("/auth/login", request.url));
     }
 
@@ -53,5 +53,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/auth/login", "/auth/register", "/admin/:path*"],
+  matcher: ["/auth/login", "/auth/register", "/admin/:path*", "/cart"],
 };

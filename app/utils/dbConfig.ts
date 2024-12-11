@@ -2,8 +2,7 @@ import { MongoClient } from "mongodb";
 
 // Ini bisa langsung diubah disini atau
 // tambahkan connection string MongoDB lewat file .env (rekomen)
-// const uri = process.env.MONGODB_URI || "";
-const uri = "";
+const uri = process.env.MONGODB_URI || "";
 
 const options = {};
 
