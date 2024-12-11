@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 
 export interface Product {
-  id: number;
+  _id: string;
   name: string;
   price: number;
   image: string;
@@ -11,6 +11,7 @@ export interface Product {
   category?: string;
   rating?: number;
   discountPercentage?: number;
+  discount?: number;
 }
 
 const ProductCard = ({ product }: { product: Product }) => {
@@ -104,7 +105,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         </div>
 
         <Link
-          href={`/product/${product.id}`}
+          href={`/product/${product._id}`}
           className="block mt-4 text-center text-[#859F3D] hover:text-[#bade57] transition-colors">
           See product details
         </Link>

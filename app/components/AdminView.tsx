@@ -1,14 +1,10 @@
 "use client";
 
-import { products } from "../data/Products";
 import { PlusCircle } from "lucide-react";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Product } from "./ProductTable";
 
-const TABLE = {
-  header: ["Name", "Category", "Price", "Rating", "Discount"],
-  data: products,
-};
+const TABLE_HEADER = ["Name", "Category", "Price", "Actions"];
 
 const FORM_DATA = [
   { name: "name", type: "text" },
@@ -21,11 +17,36 @@ const FORM_DATA = [
 
 export default function AdminView() {
 
+  const [products, setProducts] = useState<Product[]>([]);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
-  const [activeRow, setActiveRow] = useState<Number | null>(null);
+  const [activeRow, setActiveRow] = useState<string | null>(null);
   const [addProduct, setAddProduct] = useState(false);
 
-  const handleActionClick = (id: Number) => {
+  useEffect(() => {
+
+    const fetchProducts = async () => {
+      
+      try {
+        
+        const res = await fetch('/api/products');
+        
+        if (!res.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        
+        const data = await res.json();
+        setProducts(data.products as Product[]);
+      
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const handleActionClick = (id: string) => {
     setActiveRow((prev) => (prev === id ? null : id));
   };
 
@@ -171,21 +192,21 @@ export default function AdminView() {
         <table className="min-w-full mx-auto divide-y-2 divide-gray-200 text-sm">
           <thead className="text-left transition-colors ease-in-out hover:bg-zinc-100">
             <tr>
-              {TABLE.header.map((item, index) => (
+              {TABLE_HEADER.map((header) => (
                 <th
-                  key={index}
+                  key={header}
                   scope="col"
                   className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                  {item}
+                  {header}
                 </th>
               ))}
             </tr>
           </thead>
 
           <tbody className="divide-y divide-gray-200">
-            {TABLE.data.map((item) => (
+            {products.map((item) => (
               <tr
-                key={item.id}
+                key={item._id}
                 className=" transition-colors ease-in-out hover:bg-zinc-100">
                 <td className="whitespace-nowrap px-4 py-2 ">
                   <div className="flex flex-row space-x-4 items-center py-2">
@@ -200,22 +221,16 @@ export default function AdminView() {
                     <div className="p-2 text-left grow ">{item.name}</div>
                   </div>{" "}
                 </td>
+                <td className="whitespace-nowrap px-4 py-2 ">{item.category}</td>
                 <td className="whitespace-nowrap px-4 py-2 ">{item.price}</td>
-                <td className="whitespace-nowrap px-4 py-2 ">{item.price}</td>
-                <td className="whitespace-nowrap px-4 py-2 ">{item.rating}</td>
-                <td className="whitespace-nowrap px-4 py-2 ">
-                  {item.discountPercentage
-                    ? item.discountPercentage + "%"
-                    : "-"}
-                </td>
                 <td className="whitespace-nowrap px-4 py-2">
                   <button
                     type="button"
-                    onClick={() => handleActionClick(item.id)}
+                    onClick={() => handleActionClick(item._id)}
                     className="inline-block rounded bg-[#859F3D] px-4 py-2 text-xs font-medium text-white hover:bg-[#bade57]">
                     Actions
                   </button>
-                  {activeRow === item.id && (
+                  {activeRow === item._id && (
                     <div className="w-32 h-min flex flex-col text-sm bg-white mt-2 p-4 space-y-4 shadow-lg border rounded-md absolute z-10">
                       <h3 className="font-semibold">Actions</h3>
                       <button className="hover:text-[#859F3D] text-left items-center">
@@ -235,7 +250,7 @@ export default function AdminView() {
       <div>
         <div className="flex items-center justify-center px-4 py-3 sm:px-6">
           <p className="text-sm">
-            Showing {TABLE.data.length} of {TABLE.data.length} products
+            Showing {products.length} of {products.length} products
           </p>
         </div>
       </div>
