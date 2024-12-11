@@ -88,7 +88,7 @@ export default function AdminView() {
       
       }
 
-      const productRes = await fetch('/api/add-product', {
+      const productRes = await fetch('/api/products/add-product', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(productData),
@@ -107,6 +107,33 @@ export default function AdminView() {
     } catch (error) {
       setUploadStatus('failed');
       console.error('Error:', error);
+    }
+
+  }, []);
+
+  const handleDeleteProduct = useCallback( async (id: string) => {
+
+    const confirmDelete = window.confirm('Are you sure you want to delete this product?');
+    console.log(`/api/products/delete-product/${id}`);
+
+    if (confirmDelete) {
+      try {
+
+        const res = await fetch(`/api/products/delete-product/${id}`, {
+          method: 'DELETE',
+        });
+  
+        if (!res.ok) {
+          throw new Error('Failed to delete product');
+        }
+  
+        setProducts((prevProducts) => prevProducts.filter((product) => product._id !== id));
+        console.log('Product deleted successfully');
+
+      } catch (error) {
+        console.error('Error deleting product:', error);
+
+      }
     }
 
   }, []);
@@ -236,7 +263,10 @@ export default function AdminView() {
                       <button className="hover:text-[#859F3D] text-left items-center">
                         Edit
                       </button>
-                      <button className="hover:text-[#859F3D] text-left items-center">
+                      <button 
+                        className="hover:text-[#859F3D] text-left items-center"
+                        onClick={() => handleDeleteProduct(item._id)}
+                      >
                         Delete
                       </button>
                     </div>
