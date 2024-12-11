@@ -170,7 +170,9 @@ export default function CategoriesView() {
         </div>
       </div>
       <div className="px-6 mt-6 mb-12 lg:my-12 rounded-lg lg:col-span-4 ">
-        <h2 className="text-2xl font-bold text-left mb-8">All Products</h2>
+        <h2 className="text-2xl font-bold text-left mb-8">
+          {selectedCategory} Products
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredProductList &&
             (filteredProductList.length > 0

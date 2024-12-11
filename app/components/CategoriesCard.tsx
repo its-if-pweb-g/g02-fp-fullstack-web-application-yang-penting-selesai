@@ -19,7 +19,7 @@ const CATEGORIES_CARD = [
   {
     name: "Beauty & Care",
     image: "/img/skin-care.png",
-    href: "/category?name=Beauty%20&%20Care",
+    href: "/category?name=Beauty+&+Care",
   },
 ];
 
